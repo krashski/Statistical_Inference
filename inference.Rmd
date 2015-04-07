@@ -1,0 +1,61 @@
+---
+title: "The Effect of Vitamin C on Tooth Growth in Guinea Pigs"
+date: "March 7, 2015"
+output: html_document
+---
+## Overview
+This project involves analyzing the `ToothGrowth` data in the **R** `datasets` package. The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). 
+
+## Exploratory Data Analysis
+First, load the dataset and convert the dose and supplement type variables to factors.
+```{r}
+data(ToothGrowth)
+ToothGrowth$dose <- factor(ToothGrowth$dose)
+ToothGrowth$supp <- factor(ToothGrowth$supp, labels = c("Orange Juice", "Ascorbic Acid"))
+```
+The data frame contains 60 observations on 3 variables in a $2x3$ factorial design.
+```{r}
+dim(ToothGrowth)
+table(ToothGrowth$supp, ToothGrowth$dose) 
+```
+Figure 1 shows a boxplot with mean tooth length by supplement type and dose. There appears to be a supplement type x dose interaction: orange juice appears to be associated with longer tooth length, but only for doses of 0.5 and 1 mg. For doses of 2 mg, there appears to be no difference in tooth length between orange juice and ascorbic acid. 
+```{r boxplot}
+library(lattice)
+with(ToothGrowth, bwplot(len ~ dose | supp, layout = c(2, 1), 
+                         xlab = "Dose (in milligrams)",
+                         ylab = "Tooth Length",
+                         main = "Figure 1: Mean Tooth Length By Supplement Type And Dose"))
+```
+
+## Summary of the Data
+Create an aggregate data file with the mean tooth length for each of the supplement type x dose treatments.
+```{r}
+library(reshape2)
+df.aggr <- melt(ToothGrowth, id = c("supp", "dose"))
+df.aggr <- dcast(df.aggr, supp + dose ~ variable, mean)
+names(df.aggr) <- c("Supplement", "Dose", "Mean Tooth Length")
+df.aggr
+```
+
+## Hypothesis Tests
+*Note: For the purposes of this project, t-test confidence intervals will be used to compare the treatment groups. A factorial analysis of variance is much better suited to this type of experimental design, but will not be considered here.*
+
+In order to test for the presence of a supplement type x dose interaction, first create six subsets of the data. 
+```{r}
+sAA_d.5 <- ToothGrowth[1:10, ] # ascorbic acid, 0.5 mg dose
+sAA_d1 <- ToothGrowth[11:20, ] # ascorbic acid, 1 mg dose
+sAA_d2 <- ToothGrowth[21:30, ] # ascorbic acid, 2 mg dose
+sOJ_d.5 <- ToothGrowth[31:40, ] # orange juice, 0.5 mg dose
+sOJ_d1 <- ToothGrowth[41:50, ] # orange juice, 1 mg dose
+sOJ_d2 <- ToothGrowth[51:60, ] # orange juice, 2 mg dose
+```
+Create three sets of confidence intervals to compare the three dose levels for orange juice and ascorbic acid.
+```{r}
+t.test(sOJ_d.5$len, sAA_d.5$len, paired = FALSE, var.equal = TRUE)$conf # 0.5 mg dose
+t.test(sOJ_d1$len, sAA_d1$len, paired = FALSE, var.equal = TRUE)$conf # 1 mg dose
+t.test(sOJ_d2$len, sAA_d2$len, paired = FALSE, var.equal = TRUE)$conf # 2 mg dose
+```
+The confidence intervals show that at dose levels of 0.5 and 1 mg, the mean tooth length is significantly longer when orange juice is the supplement type (the confidence intervals do not contain 0). However, at a dose level of 2 mg, there is no significant difference in tooth length between orange juice and ascorbic acid (the confidence interval contains 0).
+
+## Conclusions
+The confidence intervals support the hypothesis of a supplement type x dose interaction. Orange juice is associated with longer tooth length compared to ascorbic acid, but only at doses of less than 2 mg. These conclusions assume *normality* (tooth length in guinea pigs is normally distributed), *independence* (observations under one treatment are not linked in any way to observations under another treatment), and *homogeneity of variance* (the variances across the treatment groups are equal).
