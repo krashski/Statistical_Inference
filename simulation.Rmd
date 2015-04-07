@@ -1,7 +1,8 @@
 ---
 title: "A Demonstration of the Central Limit Theorem Using the Exponential Distribution"
+author: "Russ Boucher"
 date: "March 7, 2015"
-output: html_document
+output: pdf_document
 ---
 
 ## Overview

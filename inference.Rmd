@@ -1,7 +1,8 @@
 ---
 title: "The Effect of Vitamin C on Tooth Growth in Guinea Pigs"
+author: "Russ Boucher"
 date: "March 7, 2015"
-output: html_document
+output: pdf_document
 ---
 ## Overview
 This project involves analyzing the `ToothGrowth` data in the **R** `datasets` package. The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). 
